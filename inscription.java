@@ -4,6 +4,17 @@
  */
 package school;
 
+import dbConnexion.connexion;
+import java.awt.HeadlessException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author van
@@ -108,7 +119,7 @@ public class inscription extends javax.swing.JFrame {
 
         jLabel4.setFont(new java.awt.Font("Cantarell", 1, 18)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setText("NOM");
+        jLabel4.setText("AGE");
 
         jTextField3.setFont(new java.awt.Font("DejaVu Sans", 0, 14)); // NOI18N
         jTextField3.addActionListener(new java.awt.event.ActionListener() {
@@ -130,6 +141,11 @@ public class inscription extends javax.swing.JFrame {
 
         jButton1.setFont(new java.awt.Font("DejaVu Sans", 1, 14)); // NOI18N
         jButton1.setText("ENREGISTRER");
+        jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton1MouseClicked(evt);
+            }
+        });
 
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -169,7 +185,7 @@ public class inscription extends javax.swing.JFrame {
                                     .addComponent(jTextField4)))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 382, Short.MAX_VALUE)))))
+                                .addGap(0, 390, Short.MAX_VALUE)))))
                 .addContainerGap())
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
@@ -235,6 +251,69 @@ public class inscription extends javax.swing.JFrame {
     private void jTextField4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField4ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField4ActionPerformed
+
+    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
+        // TODO add your handling code here:
+        try
+        {
+            // Connexion a la base de données
+            Connection conn = connexion.getkoneksi();
+            
+            try 
+            {
+                // Récupération des données
+                String n = jTextField3.getText();
+                String p = jTextField1.getText();
+                String a = jTextField2.getText();
+                String f = jTextField4.getText();
+                
+                // Création de l'objet statement
+                Statement stmt = conn.createStatement();
+                
+                // On exécute l'insertion 
+                JOptionPane.showMessageDialog( null,"Insertion" );
+                String sql = "INSERT INTO etudiants( nom , prenom , age , filiere ) VALUES ('" + n + "','" + p + "','" + a + "','" + f + "')";
+                System.out.println( sql );
+                stmt.executeUpdate(sql);
+            } 
+            catch (SQLException ex) 
+            {
+                Logger.getLogger(inscription.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            // Affichage des etudiants
+            String[] personne={ "NOM","PRENOM","AGE" , "FILIÈRE" };
+            String [] afficher= new String [7];
+            ResultSet rs;
+            DefaultTableModel model = new DefaultTableModel(null,personne);
+
+            try 
+            { 
+             Statement st =(Statement) conn.createStatement();
+             //requete pour afficher dans le jTable
+             rs = st.executeQuery("Select * from etudiants");
+                  while( rs.next() )
+                  {
+                        afficher[0]= rs.getString("nom");
+                        afficher[1]= rs.getString("prenom");
+                        afficher[2]= rs.getString("age"); 
+                        afficher[3]= rs.getString("filiere"); 
+                        model.addRow(afficher);
+                  }
+                  jTable2.setModel(model);
+                  conn.close();
+            } 
+            catch (Exception e) 
+            {
+                   e.printStackTrace(); 
+            }
+            
+        }
+        catch(HeadlessException e)
+        { 
+            System.out.println(e);
+        }
+    }//GEN-LAST:event_jButton1MouseClicked
 
     /**
      * @param args the command line arguments
